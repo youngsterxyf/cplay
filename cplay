@@ -540,7 +540,7 @@ class HelpWindow(ListWindow):
 class ListEntry:
     def __init__(self, pathname, dir=0):
         self.filename = os.path.basename(pathname)
-        self.pathname = pathname
+        self.pathname = pathname.decode('utf-8').encode('utf-8')
         self.slash = dir and "/" or ""
         self.tagged = 0
 
