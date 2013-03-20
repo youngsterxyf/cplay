@@ -1468,6 +1468,8 @@ class Application:
         # remove temporary files
         try:
             if os.path.exists(CONTROL_FIFO): os.unlink(CONTROL_FIFO)
+            if os.path.exists('/tmp/cplay_now_playing'):
+                os.remove('/tmp/cplay_now_playing')
         except IOError:
             pass
 
