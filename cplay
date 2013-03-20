@@ -1378,7 +1378,7 @@ class FIFOControl:
             os.mkfifo(CONTROL_FIFO, 0600)
             self.fd = open(CONTROL_FIFO, "rb+", 0)
         except IOError:
-            # warn that we're disabling the fifo because someone raced us?
+            # warn that we are disabling the fifo because someone raced us?
             return
 
 
@@ -1507,10 +1507,16 @@ class Application:
         self.play_tid = None
         if entry is None or offset is None: return
         self.player.stop(quiet=1)
+        
+        found_player = 0
         for self.player in PLAYERS:
             if self.player.re_files.search(entry.pathname):
-                if self.player.setup(entry, offset): break
-        else:
+                if self.player.setup(entry, offset):
+                    with open('/tmp/cplay_now_playing', 'w') as fh:
+                        fh.write(entry.vp())
+                    found_player += 1
+                    break
+        if found_player == 0 :
             app.status(_("Player not found!"), 1)
             self.player.stopped = 0  # keep going
             return
@@ -1637,6 +1643,12 @@ class Application:
 # ------------------------------------------
 def main():
     try:
+        # -m is to get the music name now cplay is playing
+        if '-m' in sys.argv[1:]:
+            with open('/tmp/cplay_now_playing', 'r') as fh:
+                now_playing = fh.read().strip('\n')
+                print '.'.join(now_playing.split('.')[:-1])
+            return
         opts, args = getopt.getopt(sys.argv[1:], "nrRv")
     except:
         usage = _("Usage: %s [-nrRv] [ file | dir | playlist ] ...\n")
